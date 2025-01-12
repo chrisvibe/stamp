@@ -16,7 +16,7 @@ class StampApp:
         self.defaults = self.load_defaults('defaults.yaml')
 
         # Load codes from defaults
-        self.codes = [code.strip() for code in self.defaults.get('codes', 'work,play').split(',')]
+        self.codes = [code.strip() for code in self.defaults.get('codes', 'work,lunch,play').split(',')]
         self.default_code_stamp_in = self.defaults.get('default_code_stamp_in', 'work')
         self.default_code_stamp_out = self.defaults.get('default_code_stamp_out', 'play')
 
@@ -195,10 +195,7 @@ class StampApp:
             status_msg = f"Status: in @{now_local.strftime('%Y-%m-%d %H:%M:%S')}"
             self.stamp_button.config(bg='green')
         else:
-            if self.lunch_start <= now_local.time() <= self.lunch_stop:
-                default_comment = self.defaults.get('default_stamp_out_lunch_comment', 'lunch')
-            else:
-                default_comment = self.defaults.get('default_stamp_out_comment', '')
+            default_comment = self.defaults.get('default_stamp_out_comment', '')
             
             code = self.code_var.get()
             comment = self.comment_var.get()

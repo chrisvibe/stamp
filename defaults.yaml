@@ -7,8 +7,6 @@ stamp_in_comment_msg: 'Stamp in comment:'
 default_stamp_in_comment: ''
 stamp_out_comment_msg: 'Stamp out comment:'
 default_stamp_out_comment: ''
-codes: work, sick, conference, travel, other
+codes: work, lunch, sick, conference, travel, other
 default_code_stamp_in: work
 default_code_stamp_out: play
-typical_lunch_start: '10:30'
-typical_lunch_stop: '13:00'
