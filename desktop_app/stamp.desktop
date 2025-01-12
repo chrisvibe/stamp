@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Stamp
+Comment=Run Stamp Python App
+Exec=bash -c "nohup /home/leon/anaconda3/bin/conda run -n timekeeper --cwd /home/leon/Documents/katt/phd/code/stamp python stamp_app.py"
+Icon=/home/leon/Documents/katt/phd/code/stamp/desktop_app/stamp.png
+Terminal=false
+Type=Application
+Categories=Application;
