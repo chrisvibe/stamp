@@ -1,12 +1,18 @@
 # stamp
 Simple tk inter app to log your time in a database. Stamp in and out with a code and comment. defaults can be modified in defaults.yaml.
 
-# install on desktop (Ubuntu)
+# install dependencies
 ```bash
-conda env create -f environment.yaml
+conda env create -f environment.yaml env create -f environment.yaml
 ```
 
-# install on desktop (Ubuntu)
+# run
+```bash
+conda run -n timekeeper python stamp_app.py"
+```
+
+# desktop app (Ubuntu)
+change the two paths in stamp.desktop to match your environment under "exec"
 ```bash
 chmod +x stamp.desktop
 cp desktop_app/stamp.desktop ~/.local/share/applications/stamp.desktop
