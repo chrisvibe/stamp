@@ -8,7 +8,7 @@ conda env create -f environment.yaml env create -f environment.yaml
 
 # run
 ```bash
-conda run -n timekeeper python stamp_app.py"
+conda run -n timekeeper python stamp_app.py
 ```
 
 # desktop app (Ubuntu)
