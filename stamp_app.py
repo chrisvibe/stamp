@@ -247,13 +247,13 @@ class StampApp:
 
                 cursor = self.conn.cursor()
                 try:
-                    cursor.execute("SELECT id, timestamp, status, comment FROM log WHERE id = ?", (entry_id,))
+                    cursor.execute("SELECT id, timestamp, status, code, comment FROM log WHERE id = ?", (entry_id,))
                     entry = cursor.fetchone()
                 finally:
                     cursor.close()
 
                 if entry:
-                    entry_str = f"ID: {entry[0]}\nTimestamp: {entry[1]}\nStatus: {entry[2]}\nComment: {entry[3]}"
+                    entry_str = f"ID: {entry[0]}\nTimestamp: {entry[1]}\nStatus: {entry[2]}\nCode: {entry[3]}\nComment: {entry[4]}"
                     entry_display.config(state=tk.NORMAL)
                     entry_display.delete("1.0", tk.END)
                     entry_display.insert(tk.END, entry_str)
