@@ -31,12 +31,18 @@ class StampApp:
 
         self.setup_ui()
 
+        # init
+        db_path = Path(self.defaults.get('db_path', 'out/current/time_log.db'))
+        if not (db_path.is_file() and db_path.suffix == '.db'):
+            db_path = Path('out/current/time_log.db')
+        print('using database:', db_path)
+        self.DB_FILE = db_path 
+        path = Path(self.DB_FILE)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        self.conn = sqlite3.connect(self.DB_FILE)
+        self.setup_database()
+
         # Set the database file path and backup if necesarry
-        db_file = Path(self.defaults.get('default_code_stamp_out', 'data/time_log.db'))
-        if not (db_file.is_file() and db_file.suffix == '.db'):
-            db_file = Path('data/time_log.db')
-        print('using database:', db_file)
-        self.DB_FILE = db_file 
         self.DB_FILE.parent.mkdir(exist_ok=True)
         self.backup_days = int(self.defaults.get('backup_days', '7'))
         self.backup_dir = Path(self.defaults.get('backup_dir', 'out/backups/'))
@@ -45,12 +51,6 @@ class StampApp:
 
         # Set window size after UI is created
         self.set_window_size()
-
-        path = Path(self.DB_FILE)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        self.conn = sqlite3.connect(self.DB_FILE)
-        self.setup_database()
-
         self.update_status_from_database()
     
     def check_creation_date_and_backup(self):
@@ -58,15 +58,18 @@ class StampApp:
             dst.write_bytes(src.read_bytes())
 
         current_time = datetime.now()
-        if self.DB_FILE.exists():
-            creation_time = datetime.fromtimestamp(self.DB_FILE.stat().st_ctime)
+        creation_time = self.get_last_backup_info() 
+        if creation_time is None:
+            age_in_days = self.backup_days + 1
+        else:
             age_in_days = (current_time - creation_time).days
 
-            if age_in_days > self.backup_days:
-                backup_filename = f"{current_time.strftime('%Y-%m-%d')}_{self.DB_FILE.name}"
-                backup_path = self.backup_dir / backup_filename
-                copy_file(self.DB_FILE, backup_path)
-                print(f"Database backed up to: {backup_path}")
+        if age_in_days >= self.backup_days:
+            backup_filename = f"{current_time.strftime('%Y-%m-%d')}_{self.DB_FILE.name}"
+            backup_path = self.backup_dir / backup_filename
+            copy_file(self.DB_FILE, backup_path)
+            self.write_backup_log(current_time, backup_path)
+            print(f"Database backed up to: {backup_path}")
 
     def load_defaults(self, file_path):
         try:
@@ -87,7 +90,33 @@ class StampApp:
                                 code TEXT NOT NULL,
                                 comment TEXT
                             )''')
+            cursor.execute('''CREATE TABLE IF NOT EXISTS backup_log (
+                                time TEXT PRIMARY KEY,
+                                backup_path TEXT NOT NULL
+                            )''')
             self.conn.commit()
+        finally:
+            cursor.close()
+
+    def write_backup_log(self, dt, backup_path):
+        cursor = self.conn.cursor()
+        try:
+            cursor.execute('INSERT INTO backup_log (time, backup_path) VALUES (?, ?)', 
+                           (dt.strftime('%Y-%m-%d %H:%M:%S'), str(backup_path)))
+            self.conn.commit()
+        finally:
+            cursor.close()
+
+    def get_last_backup_info(self):
+        cursor = self.conn.cursor()
+        try:
+            cursor.execute('SELECT time FROM backup_log ORDER BY time DESC LIMIT 1')
+            last_backup = cursor.fetchone()
+            if last_backup:
+                last_backup_time = datetime.strptime(last_backup[0], '%Y-%m-%d %H:%M:%S')
+                return last_backup_time
+            else:
+                return None
         finally:
             cursor.close()
             
